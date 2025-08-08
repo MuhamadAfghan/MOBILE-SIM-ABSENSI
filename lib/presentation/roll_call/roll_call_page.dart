@@ -1,65 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import '../../theme/navbar_bottom_page.dart';
+import '../../theme/navbar_head_page.dart';
 import '../history/history_page.dart';
 import '../profile/profile_page.dart';
 import '../home/home_page.dart';
-import '../../theme/navbar_bottom_page.dart';
 
-class RollCallPage extends StatelessWidget {
+class RollCallPage extends StatefulWidget {
   const RollCallPage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    int _selectedIndex = 1;
+  State<RollCallPage> createState() => _RollCallPageState();
+}
 
+class _RollCallPageState extends State<RollCallPage> {
+  int _selectedIndex = 1;
+
+  void _onNavTap(int index) {
+    if (index == 0) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const HomePage()),
+        (route) => false,
+      );
+    } else if (index == 1) {
+      // Stay on this page
+    } else if (index == 2) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const HistoryPage()),
+        (route) => false,
+      );
+    } else if (index == 3) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const ProfilePage()),
+        (route) => false,
+      );
+    }
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF6EC1FF),
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(0),
-        child: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
-      ),
+      backgroundColor: const Color(0xFFE3F3FF),
       body: Column(
         children: [
-          // Header
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            child: Row(
-              children: [
-                const CircleAvatar(
-                  backgroundColor: Colors.white,
-                  radius: 20,
-                  child: Icon(Icons.person, color: Color(0xFF6EC1FF)),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      "Hadir.in",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    Text(
-                      "Kamis, 15 Februari 2025",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                const Icon(Icons.notifications_none, color: Colors.white),
-              ],
-            ),
-          ),
-
-          // Konten utama
+          const NavbarHeadPage(),
           Expanded(
             child: Container(
               width: double.infinity,
@@ -196,34 +186,11 @@ class RollCallPage extends StatelessWidget {
               ),
             ),
           ),
-
-          // Bottom Navigation
-          NavbarBottomPage(
-            currentIndex: _selectedIndex,
-            onTap: (index) {
-              if (index == 0) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HomePage()),
-                  (route) => false,
-                );
-              } else if (index == 2) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HistoryPage()),
-                  (route) => false,
-                );
-              } else if (index == 3) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ProfilePage()),
-                  (route) => false,
-                );
-              }
-              // index 1 (RollCallPage) stay here
-            },
-          ),
         ],
+      ),
+      bottomNavigationBar: NavbarBottomPage(
+        currentIndex: _selectedIndex,
+        onTap: _onNavTap,
       ),
     );
   }

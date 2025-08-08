@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import '../../theme/navbar_bottom_page.dart';
+import '../home/home_page.dart';
+import '../roll_call/roll_call_page.dart';
+import '../history/history_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -11,114 +15,151 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   int _selectedIndex = 3;
 
+  void _onNavTap(int index) {
+    if (index == 0) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const HomePage()),
+        (route) => false,
+      );
+    } else if (index == 1) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const RollCallPage()),
+        (route) => false,
+      );
+    } else if (index == 2) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const HistoryPage()),
+        (route) => false,
+      );
+    } else if (index == 3) {
+      // Stay on this page
+    }
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFE3F3FF),
       body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 24),
-            // Avatar
-            const CircleAvatar(
-              radius: 55,
-              backgroundColor: Colors.white,
-              child: CircleAvatar(
-                radius: 52,
-                backgroundColor: Color(0xFFFDEEEE),
-                // Foto profil bisa diganti di sini
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Nama dan Mapel
-            const Text(
-              'MRS. Sity Nurhaliza',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-            ),
-            const Text(
-              'Matematika',
-              style: TextStyle(color: Colors.black54, fontSize: 15),
-            ),
-            const SizedBox(height: 20),
-            // Statistik
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(height: 24),
+              // Avatar dengan background lingkaran besar
+              Stack(
+                alignment: Alignment.center,
                 children: [
-                  _buildStatCard('95%', 'Kehadiran'),
-                  const SizedBox(width: 10),
-                  _buildStatCard('25', 'Hari kerja'),
-                  const SizedBox(width: 10),
-                  _buildStatCard('2', 'Jumlah Telat'),
+                  Container(
+                    width: 130,
+                    height: 130,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const CircleAvatar(
+                    radius: 55,
+                    backgroundColor: Color(0xFFFDEEEE),
+                    // Foto profil bisa diganti di sini
+                  ),
                 ],
               ),
-            ),
-            const SizedBox(height: 20),
-            // Informasi Personal
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 16),
+              // Nama dan Mapel rata tengah
+              const Text(
+                'MRS. Sity Nurhaliza',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                textAlign: TextAlign.center,
+              ),
+              const Text(
+                'Matematika',
+                style: TextStyle(color: Colors.black54, fontSize: 15),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              // Statistik dalam card, rata tengah, jarak antar card
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
                   children: [
-                    const Text(
-                      'Informasi Personal',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const Divider(),
-                    _buildInfoRow(Icons.badge, '12345678901112131415161718'),
-                    const SizedBox(height: 8),
-                    _buildInfoRow(Icons.email, 'sitinurhaliza@smkwikrama.sch.id'),
-                    const SizedBox(height: 8),
-                    _buildInfoRow(Icons.phone, '0812345678910'),
-                    const SizedBox(height: 8),
-                    _buildInfoRow(Icons.book, 'Matematika'),
+                    _buildStatCard('95%', 'Kehadiran'),
+                    const SizedBox(width: 10),
+                    _buildStatCard('25', 'Hari kerja'),
+                    const SizedBox(width: 10),
+                    _buildStatCard('2', 'Jumlah Telat'),
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            // Aktivitas
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Aktivitas',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const Divider(),
-                    _buildActivityRow(Icons.login, 'Masuk', 'Hari ini, 07:45'),
-                    _buildActivityRow(Icons.logout, 'Keluar', 'Hari ini, --:--'),
-                    _buildActivityRow(Icons.warning_amber_rounded, 'Terlambat', 'Hari ini, 07:51'),
-                  ],
+              const SizedBox(height: 20),
+              // Informasi Personal card lebih rounded
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Informasi Personal',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const Divider(),
+                      _buildInfoRow(Icons.badge, '12345678901112131415161718'),
+                      const SizedBox(height: 8),
+                      _buildInfoRow(Icons.email, 'sitinurhaliza@smkwikrama.sch.id'),
+                      const SizedBox(height: 8),
+                      _buildInfoRow(Icons.phone, '0812345678910'),
+                      const SizedBox(height: 8),
+                      _buildInfoRow(Icons.book, 'Matematika'),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              // Aktivitas card lebih rounded
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Aktivitas',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const Divider(),
+                      _buildActivityRow(Icons.login, 'Masuk', 'Hari ini, 07:45'),
+                      _buildActivityRow(Icons.logout, 'Keluar', 'Hari ini, --:--'),
+                      _buildActivityRow(Icons.warning_amber_rounded, 'Terlambat', 'Hari ini, 07:51'),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: NavbarBottomPage(
         currentIndex: _selectedIndex,
-        onTap: (index) {
-          if (index != 3) {
-            Navigator.popUntil(context, (route) => route.isFirst);
-          }
-        },
+        onTap: _onNavTap,
       ),
     );
   }
@@ -129,7 +170,7 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           children: [

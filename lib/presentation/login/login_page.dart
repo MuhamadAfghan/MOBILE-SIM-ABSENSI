@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sim_absensi/presentation/home/home_page.dart';
-import 'package:sim_absensi/widget/app_color.dart';
+import 'package:sim_absensi/widget/app_color_custom.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
