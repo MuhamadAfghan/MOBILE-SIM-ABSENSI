@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({Key? key}) : super(key: key);
@@ -28,6 +29,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
       icon: Icons.check_circle,
     ),
   ];
+
+  Future<void> _completeOnboarding() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasSeenOnboarding', true);
+    Navigator.pushReplacementNamed(context, '/login');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,9 +147,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     color: Colors.transparent,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(12),
-                      onTap: () {
+                      onTap: () async {
                         if (currentIndex == onboardingData.length - 1) {
-                          Navigator.pushReplacementNamed(context, '/login');
+                          await _completeOnboarding();
                         } else {
                           pageController.nextPage(
                             duration: const Duration(milliseconds: 300),
