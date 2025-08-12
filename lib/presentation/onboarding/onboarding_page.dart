@@ -14,19 +14,19 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   final List<OnboardingData> onboardingData = [
     OnboardingData(
-      title: "Onboarding 1",
-      description: "Weeeeeeeeeeeeee.",
-      icon: Icons.rocket_launch,
+      title: "Tepat Waktu",
+      description: "Absensi jadi praktis dengan pengaturan waktu yang fleksibel.",
+      imageAsset: "assets/onboarding/calendar.png",
     ),
     OnboardingData(
-      title: "Onboarding 2", 
-      description: "Discover powerful features that will help you manage your attendance efficiently.",
-      icon: Icons.schedule,
+      title: "Mudah Digunakan",
+      description: "Antarmuka sederhana dan intuitif, cocok untuk semua kalangan.",
+      imageAsset: "assets/onboarding/easy.png",
     ),
     OnboardingData(
-      title: "Onboarding 3",
-      description: "Get ready to experience the best attendance management system ever created!",
-      icon: Icons.check_circle,
+      title: "Aman & Terpercaya",
+      description: "Data absensi tersimpan aman dan dapat diakses kapan saja.",
+      imageAsset: "assets/onboarding/secure.png",
     ),
   ];
 
@@ -45,134 +45,134 @@ class _OnboardingPageState extends State<OnboardingPage> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFFF5F5F5),
-              Color(0xFFE3F2FD),
-              Color(0xFF42A5F5),
+              Color(0xFFB3C6F7),
+              Color(0xFF6A9CFD),
             ],
           ),
         ),
         child: SafeArea(
-          child: Column(
+          child: Stack(
             children: [
-              Expanded(
-                child: PageView.builder(
-                  controller: pageController,
-                  onPageChanged: (index) {
-                    setState(() {
-                      currentIndex = index;
-                    });
-                  },
-                  itemCount: onboardingData.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            onboardingData[index].icon,
-                            size: 120,
-                            color: const Color(0xFF1E88E5),
-                          ),
-                          const SizedBox(height: 40),
-                          Text(
-                            onboardingData[index].title,
-                            style: const TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            onboardingData[index].description,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.black54,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-              
-              // Dots indicator
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  onboardingData.length,
-                  (index) => Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: currentIndex == index ? 12 : 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: currentIndex == index 
-                          ? const Color(0xFF1E88E5) 
-                          : Colors.grey,
-                      borderRadius: BorderRadius.circular(4),
+              Column(
+                children: [
+                  const SizedBox(height: 24),
+                  // Logo Hadir.in
+                  Center(
+                    child: Image.asset(
+                      "assets/onboarding/logo_hadirin.png",
+                      height: 48,
                     ),
                   ),
-                ),
-              ),
-              
-              const SizedBox(height: 40),
-              
-              // Next button
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Container(
-                  width: double.infinity,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFF42A5F5),
-                        Color(0xFF1E88E5),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.blue.withOpacity(0.3),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () async {
-                        if (currentIndex == onboardingData.length - 1) {
-                          await _completeOnboarding();
-                        } else {
-                          pageController.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                        }
+                  const SizedBox(height: 24),
+                  Expanded(
+                    child: PageView.builder(
+                      controller: pageController,
+                      onPageChanged: (index) {
+                        setState(() {
+                          currentIndex = index;
+                        });
                       },
-                      child: Center(
-                        child: Text(
-                          currentIndex == onboardingData.length - 1 ? 'Get Started' : 'Selanjutnya',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                      itemCount: onboardingData.length,
+                      itemBuilder: (context, index) {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Gambar utama onboarding
+                            Image.asset(
+                              onboardingData[index].imageAsset,
+                              height: 220,
+                            ),
+                            const SizedBox(height: 40),
+                            Text(
+                              onboardingData[index].title,
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              onboardingData[index].description,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                  // Dots indicator
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      onboardingData.length,
+                      (index) => Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        width: currentIndex == index ? 16 : 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: currentIndex == index
+                              ? Colors.white
+                              : Colors.white.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(4),
                         ),
                       ),
                     ),
                   ),
+                  const SizedBox(height: 60),
+                ],
+              ),
+              // Skip button (bottom left)
+              Positioned(
+                left: 24,
+                bottom: 24,
+                child: GestureDetector(
+                  onTap: _completeOnboarding,
+                  child: const Text(
+                    "Skip",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
                 ),
               ),
-              
-              const SizedBox(height: 40),
+              // Next/Arrow button (bottom right)
+              Positioned(
+                right: 24,
+                bottom: 16,
+                child: GestureDetector(
+                  onTap: () async {
+                    if (currentIndex == onboardingData.length - 1) {
+                      await _completeOnboarding();
+                    } else {
+                      pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    }
+                  },
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Color(0xFFFFA24B),
+                    ),
+                    child: const Icon(
+                      Icons.arrow_forward,
+                      color: Colors.white,
+                      size: 32,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -184,11 +184,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
 class OnboardingData {
   final String title;
   final String description;
-  final IconData icon;
+  final String imageAsset;
 
   OnboardingData({
     required this.title,
     required this.description,
-    required this.icon,
+    required this.imageAsset,
   });
 }

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:get/get.dart';
 import '../../theme/navbar_bottom_page.dart';
 import '../../theme/navbar_head_page.dart';
 import '../roll_call/roll_call_page.dart';
 import '../history/history_page.dart';
 import '../profile/profile_page.dart';
-import '../../widget/app_fonts_custom.dart'; // Tambahkan ini
+import '../../widget/app_fonts_custom.dart';
+import 'controller/home_controller.dart';
 
 class HomePage extends StatefulWidget {
+  static const String routeName = '/HomePage';
   const HomePage({Key? key}) : super(key: key);
 
   @override
@@ -16,12 +18,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  final HomeController _controller = Get.put(HomeController());
 
   void _onNavTap(int index) {
     if (index == 0 && _selectedIndex != 0) {
-      Navigator.pushAndRemoveUntil(
+      Navigator.pushNamedAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const HomePage()),
+        HomePage.routeName,
         (route) => false,
       );
     } else if (index == 1) {
@@ -49,173 +52,213 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _controller.fetchSettings();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color(0xFFE3F3FF), // Ubah warna background
-        body: Column(
-          children: [
-            const NavbarHeadPage(),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    // Jadwal Kedatangan & Kepulangan
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEFF6FF),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            'Jadwal Kedatangan & Kepulangan',
-                            style: AppFonts.semiBold(fontSize: 16),
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        backgroundColor: const Color(0xFFE3F3FF),
+        body: GetX<HomeController>(
+          init: _controller,
+          builder: (ctrl) {
+            final isLoading = ctrl.isLoading.value;
+            final settings = ctrl.settings.value;
+            return isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+                    children: [
+                    NavbarHeadPage(),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
                             children: [
-                              Column(
-                                children: [
-                                  Text('Masuk', style: AppFonts.regular(fontSize: 14, color: Colors.grey)),
-                                  const SizedBox(height: 4),
-                                  Text('08:15', style: AppFonts.bold(fontSize: 28)),
-                                ],
-                              ),
-                              // Garis vertikal tipis
+                              // Jadwal Kedatangan & Kepulangan
                               Container(
-                                width: 1,
-                                height: 40,
-                                color: Color(0xFFBFD6F6),
-                              ),
-                              Column(
-                                children: [
-                                  Text('Keluar', style: AppFonts.regular(fontSize: 14, color: Colors.grey)),
-                                  const SizedBox(height: 4),
-                                  Text('16:00', style: AppFonts.bold(fontSize: 28)),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    // Absen Masuk & Keluar
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Color(0xFFE3E8F0), width: 1),
-                            ),
-                            child: Column(
-                              children: [
-                                Text('06:45', style: AppFonts.bold(fontSize: 24, color: Color(0xFF2563EB))),
-                                const SizedBox(height: 8),
-                                Text('Absen Masuk', style: AppFonts.bold(color: Color(0xFF2563EB))),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Color(0xFFE3E8F0), width: 1),
-                            ),
-                            child: Column(
-                              children: [
-                                Text('16:30', style: AppFonts.bold(fontSize: 24, color: Color(0xFF2563EB))),
-                                const SizedBox(height: 8),
-                                Text('Absen Keluar', style: AppFonts.bold(color: Color(0xFF2563EB))),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    // Lokasi Kantor
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Color(0xFFE3E8F0), width: 1),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Lokasi Kantor', style: AppFonts.semiBold(fontSize: 16)),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Raya Wangun, RT.01/RW.06, Sindangsari, Kec. Bogor Tim.,\nKota Bogor, Jawa Barat 16146',
-                            style: AppFonts.regular(fontSize: 14, color: Colors.grey),
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Container(
-                                width: 10,
-                                height: 10,
-                                decoration: const BoxDecoration(
-                                  color: Colors.green,
-                                  shape: BoxShape.circle,
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEFF6FF),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      'Jadwal Kedatangan & Kepulangan',
+                                      style: AppFonts.semiBold(fontSize: 16),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Column(
+                                          children: [
+                                            Text('Masuk', style: AppFonts.regular(fontSize: 14, color: Colors.grey)),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              settings?.mondayStartTime ?? '-',
+                                              style: AppFonts.bold(fontSize: 28),
+                                            ),
+                                          ],
+                                        ),
+                                        // Garis vertikal tipis
+                                        Container(
+                                          width: 1,
+                                          height: 40,
+                                          color: const Color(0xFFBFD6F6),
+                                        ),
+                                        Column(
+                                          children: [
+                                            Text('Keluar', style: AppFonts.regular(fontSize: 14, color: Colors.grey)),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              settings?.mondayEndTime ?? '-',
+                                              style: AppFonts.bold(fontSize: 28),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Dalam Radius Kantor',
-                                style: AppFonts.bold(color: Colors.black87),
+                              const SizedBox(height: 16),
+                              // Absen Masuk & Keluar
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(vertical: 20),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(color: const Color(0xFFE3E8F0), width: 1),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            (settings?.mondayStartTime != null && settings!.mondayStartTime.isNotEmpty)
+                                                ? settings!.mondayStartTime
+                                                : '-',
+                                            style: AppFonts.bold(fontSize: 24, color: const Color(0xFF2563EB)),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text('Absen Masuk', style: AppFonts.bold(color: const Color(0xFF2563EB))),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(vertical: 20),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(color: const Color(0xFFE3E8F0), width: 1),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            (settings?.mondayEndTime != null && settings!.mondayEndTime.isNotEmpty)
+                                                ? settings!.mondayEndTime
+                                                : '-',
+                                            style: AppFonts.bold(fontSize: 24, color: const Color(0xFF2563EB)),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text('Absen Keluar', style: AppFonts.bold(color: const Color(0xFF2563EB))),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const Spacer(),
-                              GestureDetector(
-                                onTap: () {},
-                                child: Text('Lihat map', style: AppFonts.bold(color: Color(0xFF2563EB))),
+                              const SizedBox(height: 16),
+                              // Lokasi Kantor
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: const Color(0xFFE3E8F0), width: 1),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Lokasi Kantor', style: AppFonts.semiBold(fontSize: 16)),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      settings?.locationName ??
+                                          'Raya Wangun, RT.01/RW.06, Sindangsari, Kec. Bogor Tim.,\nKota Bogor, Jawa Barat 16146',
+                                      style: AppFonts.regular(fontSize: 14, color: Colors.grey),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: 10,
+                                          height: 10,
+                                          decoration: const BoxDecoration(
+                                            color: Colors.green,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Dalam Radius Kantor',
+                                          style: AppFonts.bold(color: Colors.black87),
+                                        ),
+                                        const Spacer(),
+                                        GestureDetector(
+                                          onTap: () {},
+                                          child: Text('Lihat map', style: AppFonts.bold(color: Color(0xFF2563EB))),
+                                        ),
+                                      ],
+                                    ),
+                                    if (settings != null)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 8.0),
+                                        child: Text(
+                                          'Lat: ${settings!.latitude}, Long: ${settings!.longitude}, Radius: ${settings!.radius}m',
+                                          style: AppFonts.regular(fontSize: 12, color: Colors.grey),
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
+                              const SizedBox(height: 16),
+                              // Riwayat Kehadiran
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Riwt Kehadiran', style: AppFonts.semiBold(fontSize: 16)),
+                                  TextButton(
+                                    onPressed: () {},
+                                    child: Text('Lihat Selengkapnya', style: AppFonts.bold(fontSize: 12, color: Color(0xFF2563EB))),
+                                    style: TextButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: const Size(0, 0),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              // List Riwayat
+                              _buildAttendanceHistoryItem('05', 'Sen', '06.45', '16:10', 'SMK WIKRAMA, KOTA BOGOR'),
+                              const SizedBox(height: 12),
+                              _buildAttendanceHistoryItem('04', 'Min', '07.00', '16:00', 'SMK WIKRAMA, KOTA BOGOR'),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    // Riwayat Kehadiran
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Riwt Kehadiran', style: AppFonts.semiBold(fontSize: 16)),
-                        TextButton(
-                          onPressed: () {},
-                          child: Text('Lihat Selengkapnya', style: AppFonts.bold(fontSize: 12, color: Color(0xFF2563EB))),
-                          style: TextButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            minimumSize: const Size(0, 0),
-                          ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    // List Riwayat
-                    _buildAttendanceHistoryItem('05', 'Sen', '06.45', '16:10', 'SMK WIKRAMA, KOTA BOGOR'),
-                    const SizedBox(height: 12),
-                    _buildAttendanceHistoryItem('04', 'Min', '07.00', '16:00', 'SMK WIKRAMA, KOTA BOGOR'),
-                  ],
-                ),
-              ),
-            ),
-          ],
+                      ),
+                    ],
+                  );
+          },
         ),
         bottomNavigationBar: SafeArea(
           child: NavbarBottomPage(

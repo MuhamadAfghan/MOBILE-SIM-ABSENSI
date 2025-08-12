@@ -1,0 +1,64 @@
+class Statistik {
+  final int persentaseKehadiran;
+  final int jumlahTidakMasuk;
+  final int jumlahMasuk;
+  final int jumlahTelat;
+  final int jumlahIzin;
+  final int jumlahSakit;
+
+  Statistik({
+    required this.persentaseKehadiran,
+    required this.jumlahTidakMasuk,
+    required this.jumlahMasuk,
+    required this.jumlahTelat,
+    required this.jumlahIzin,
+    required this.jumlahSakit,
+  });
+
+  factory Statistik.fromJson(Map<String, dynamic> json) {
+    return Statistik(
+      persentaseKehadiran: json['persentase_kehadiran'],
+      jumlahTidakMasuk: json['jumlah_tidak_masuk'],
+      jumlahMasuk: json['jumlah_masuk'],
+      jumlahTelat: json['jumlah_telat'],
+      jumlahIzin: json['jumlah_izin'],
+      jumlahSakit: json['jumlah_sakit'],
+    );
+  }
+}
+
+class Activity {
+  final String? checkInTime;
+  final String? checkOutTime;
+  final bool isLate;
+  final int lateDurationMinutes;
+  final String expectedCheckInTime;
+
+  Activity({
+    required this.checkInTime,
+    required this.checkOutTime,
+    required this.isLate,
+    required this.lateDurationMinutes,
+    required this.expectedCheckInTime,
+  });
+
+  factory Activity.fromJson(Map<String, dynamic> json) {
+    return Activity(
+      checkInTime: json['check_in_time'],
+      checkOutTime: json['check_out_time'],
+      isLate: json['is_late'],
+      lateDurationMinutes: json['late_duration_minutes'],
+      expectedCheckInTime: json['expected_check_in_time'],
+    );
+  }
+
+  String get formattedCheckIn =>
+      checkInTime != null ? checkInTime!.substring(0, 5) : '--:--';
+
+  String get formattedCheckOut =>
+      checkOutTime != null ? checkOutTime!.substring(0, 5) : '--:--';
+
+  String get formattedTerlambat => (isLate)
+      ? 'Hari ini, ${expectedCheckInTime.substring(0, 5)} (+${lateDurationMinutes}m)'
+      : 'Hari ini, -';
+}

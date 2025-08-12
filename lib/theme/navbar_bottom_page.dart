@@ -22,10 +22,10 @@ class NavbarBottomPage extends StatelessWidget {
       buttonBackgroundColor: Colors.blueAccent,
       animationDuration: const Duration(milliseconds: 800),
       items: const [
-        Icon(Icons.home, size: 30, color: Colors.black),
-        Icon(Icons.article, size: 30, color: Colors.black),
-        Icon(Icons.access_time, size: 30, color: Colors.black),
-        Icon(Icons.person, size: 30, color: Colors.black),
+        Icon(Icons.home, size: 30, color: Colors.white),
+        Icon(Icons.article, size: 30, color: Colors.white),
+        Icon(Icons.access_time, size: 30, color: Colors.white),
+        Icon(Icons.person, size: 30, color: Colors.white),
       ],
       onTap: onTap,
     );
