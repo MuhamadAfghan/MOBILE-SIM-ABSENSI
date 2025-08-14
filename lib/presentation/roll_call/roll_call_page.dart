@@ -80,25 +80,103 @@ class _RollCallPageState extends State<RollCallPage> {
       final req = RollCallRequest(
         latitude: position.latitude,
         longitude: position.longitude,
+        type: "mobile",
         keterangan: keterangan,
       );
 
-      bool success = false;
+      RollCallResponse? resp;
       if (_selectedMainType == "Kedatangan") {
-        success = await _controller!.checkIn(req);
+        resp = await _controller!.checkIn(req);
       } else {
-        success = await _controller!.checkOut(req);
+        resp = await _controller!.checkOut(req);
       }
 
       setState(() {
         _loadingSubmit = false;
       });
 
-      if (success) {
+      if (resp != null && resp.status == "success") {
+        String locationInfo = resp.data['location'] ?? '';
+        String distanceInfo = resp.data['distance_from_office'] ?? '';
+        print('Backend message: ${resp.message}');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Absensi berhasil dikirim!')),
+          SnackBar(
+            content: Text(
+              '${resp.message}\nLokasi: $locationInfo\nJarak: $distanceInfo',
+            ),
+          ),
+        );
+      } else if (resp != null) {
+        print('Backend error message: ${resp.message}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(resp.message)),
         );
       } else {
+        print('Backend error: Gagal mengirim absensi!');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal mengirim absensi!')),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _loadingSubmit = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
+  }
+
+  // Tambahkan fungsi untuk submit kepulangan langsung
+  Future<void> _submitKepulanganLangsung() async {
+    if (_controller == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Token tidak ditemukan. Silakan login ulang.')),
+      );
+      return;
+    }
+    setState(() {
+      _loadingSubmit = true;
+      _selectedMainType = "Kepulangan";
+      _selectedAbsensiType = "Hadir";
+    });
+
+    try {
+      Position position = await _controller!.getCurrentLocation();
+      String keterangan = _noteController.text.trim();
+      if (keterangan.isEmpty) {
+        keterangan = "Pulang tepat waktu";
+      }
+      final req = RollCallRequest(
+        latitude: position.latitude,
+        longitude: position.longitude,
+        type: "mobile",
+        keterangan: keterangan,
+      );
+      RollCallResponse? resp = await _controller!.checkOut(req);
+
+      setState(() {
+        _loadingSubmit = false;
+      });
+
+      if (resp != null && resp.status == "success") {
+        String locationInfo = resp.data['location'] ?? '';
+        String distanceInfo = resp.data['distance_from_office'] ?? '';
+        print('Backend message: ${resp.message}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${resp.message}\nLokasi: $locationInfo\nJarak: $distanceInfo',
+            ),
+          ),
+        );
+      } else if (resp != null) {
+        print('Backend error message: ${resp.message}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(resp.message)),
+        );
+      } else {
+        print('Backend error: Gagal mengirim absensi!');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Gagal mengirim absensi!')),
         );
@@ -184,10 +262,11 @@ class _RollCallPageState extends State<RollCallPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Ganti tampilan waktu dan tanggal agar sesuai WIB
-    final now = DateTime.now().toUtc().add(const Duration(hours: 7));
-    final timeStr = DateFormat('HH:mm', 'id_ID').format(now);
-    final dateStr = DateFormat('d MMMM yyyy', 'id_ID').format(now);
+    // Waktu Indonesia Barat (WIB) - Jakarta
+    final nowUtc = DateTime.now().toUtc();
+    final jakartaTime = nowUtc.add(const Duration(hours: 7));
+    final timeStr = DateFormat('HH:mm', 'id_ID').format(jakartaTime);
+    final dateStr = DateFormat('d MMMM yyyy', 'id_ID').format(jakartaTime);
 
     return Scaffold(
       backgroundColor: const Color(0xFFE3F3FF),
@@ -285,9 +364,7 @@ class _RollCallPageState extends State<RollCallPage> {
                           Expanded(
                             child: GestureDetector(
                               onTap: () {
-                                setState(() {
-                                  _selectedMainType = "Kepulangan";
-                                });
+                                _submitKepulanganLangsung();
                               },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(vertical: 24),
@@ -385,78 +462,76 @@ class _RollCallPageState extends State<RollCallPage> {
                         ),
                         const SizedBox(height: 18),
 
-                        // Hanya tampilkan deskripsi & upload foto jika bukan "Hadir"
-                        if (_selectedAbsensiType != "Hadir") ...[
-                          const Text(
-                            "Catatan (Opsional)",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
+                        // Catatan & upload bukti selalu tampil untuk semua jenis absensi
+                        const Text(
+                          "Catatan (Opsional)",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Color(0xFFB6DFFF)),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: TextField(
+                            controller: _noteController,
+                            maxLines: 4,
+                            decoration: const InputDecoration(
+                              hintText: "Tambahkan catatan...",
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.all(12),
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          Container(
+                        ),
+                        const SizedBox(height: 18),
+                        const Text(
+                          "Bukti Absensi",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        GestureDetector(
+                          onTap: _pickImage,
+                          child: Container(
+                            width: double.infinity,
+                            height: 120,
                             decoration: BoxDecoration(
                               border: Border.all(color: Color(0xFFB6DFFF)),
                               borderRadius: BorderRadius.circular(12),
+                              color: const Color(0xFFF8FBFF),
                             ),
-                            child: TextField(
-                              controller: _noteController,
-                              maxLines: 4,
-                              decoration: const InputDecoration(
-                                hintText: "Tambahkan catatan...",
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.all(12),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 18),
-                          const Text(
-                            "Bukti Absensi",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          GestureDetector(
-                            onTap: _pickImage,
-                            child: Container(
-                              width: double.infinity,
-                              height: 120,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Color(0xFFB6DFFF)),
-                                borderRadius: BorderRadius.circular(12),
-                                color: const Color(0xFFF8FBFF),
-                              ),
-                              child: _pickedImage == null
-                                  ? Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: const [
-                                        Icon(Icons.camera_alt, size: 36, color: Colors.black38),
-                                        SizedBox(height: 8),
-                                        Text(
-                                          "Unggah Bukti",
-                                          style: TextStyle(
-                                            color: Colors.black38,
-                                            fontSize: 14,
-                                          ),
+                            child: _pickedImage == null
+                                ? Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Icon(Icons.camera_alt, size: 36, color: Colors.black38),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        "Unggah Bukti",
+                                        style: TextStyle(
+                                          color: Colors.black38,
+                                          fontSize: 14,
                                         ),
-                                      ],
-                                    )
-                                  : ClipRRect(
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Image.file(
-                                        _pickedImage!,
-                                        width: double.infinity,
-                                        height: 120,
-                                        fit: BoxFit.cover,
                                       ),
+                                    ],
+                                  )
+                                : ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Image.file(
+                                      _pickedImage!,
+                                      width: double.infinity,
+                                      height: 120,
+                                      fit: BoxFit.cover,
                                     ),
-                            ),
+                                  ),
                           ),
-                          const SizedBox(height: 24),
-                        ],
+                        ),
+                        const SizedBox(height: 24),
 
                         // Tombol submit tetap tampil
                         AppButtonCustom(

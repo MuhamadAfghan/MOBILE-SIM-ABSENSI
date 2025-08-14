@@ -16,17 +16,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
     OnboardingData(
       title: "Tepat Waktu",
       description: "Absensi jadi praktis dengan pengaturan waktu yang fleksibel.",
-      imageAsset: "assets/onboarding/calendar.png",
+      imageAsset: "assets/onboarding/onboarding1.png",
     ),
     OnboardingData(
       title: "Mudah Digunakan",
       description: "Antarmuka sederhana dan intuitif, cocok untuk semua kalangan.",
-      imageAsset: "assets/onboarding/easy.png",
+      imageAsset: "assets/onboarding/onboarding2.png",
     ),
     OnboardingData(
       title: "Aman & Terpercaya",
       description: "Data absensi tersimpan aman dan dapat diakses kapan saja.",
-      imageAsset: "assets/onboarding/secure.png",
+      imageAsset: "assets/onboarding/onboarding3.png",
     ),
   ];
 
@@ -59,11 +59,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   // Logo Hadir.in
                   Center(
                     child: Image.asset(
-                      "assets/onboarding/logo_hadirin.png",
-                      height: 48,
+                      "assets/onboarding/logo_lengkap.png",
+                      height: 100,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   Expanded(
                     child: PageView.builder(
                       controller: pageController,
@@ -77,7 +77,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         return Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            // Gambar utama onboarding
                             Image.asset(
                               onboardingData[index].imageAsset,
                               height: 220,
