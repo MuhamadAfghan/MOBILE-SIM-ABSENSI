@@ -9,6 +9,8 @@ import '../models/home_models.dart';
 class HomeController extends GetxController {
   var settings = Rxn<HomeSettings>();
   var isLoading = false.obs;
+  var todayStatus = Rxn<TodayStatus>();
+  var isTodayStatusLoading = false.obs;
 
   Future<String> getToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -17,6 +19,7 @@ class HomeController extends GetxController {
 
   Future<void> fetchSettings() async {
     isLoading.value = true;
+    print("Start fetch settings");
     try {
       final dio = Dio();
       final token = await getToken();
@@ -28,18 +31,52 @@ class HomeController extends GetxController {
               : null,
         ),
       );
+      print("Response: ${response.data}");
       final data = response.data;
-      if (data['success'] == true && data['data'] != null) {
+      if (data['status'] == 'success' && data['data'] != null) {
         settings.value = HomeSettings.fromJson(data['data']);
+        print("settings.value updated");
       } else {
-        // Tampilkan pesan error jika response tidak sesuai
         Get.snackbar('Error', 'Failed to load statistic');
       }
     } catch (e) {
-      // Tampilkan pesan error jika terjadi exception
+      print("fetchSettings error: $e");
       Get.snackbar('Error', 'Failed to load statistic');
+    } finally {
+      isLoading.value = false;
+      print("isLoading set to false: ${isLoading.value}");
     }
-    isLoading.value = false;
+  }
+
+  Future<void> fetchTodayStatus() async {
+    isTodayStatusLoading.value = true;
+    print("Start fetch today status");
+    try {
+      final dio = Dio();
+      final token = await getToken();
+      final response = await dio.get(
+        AppApi.todayStatus,
+        options: Options(
+          headers: token.isNotEmpty
+              ? {'Authorization': 'Bearer $token'}
+              : null,
+        ),
+      );
+      print("Response: ${response.data}");
+      final data = response.data;
+      if (data['status'] == 'success' && data['data'] != null) {
+        todayStatus.value = TodayStatus.fromJson(data['data']);
+        print("todayStatus.value updated");
+      } else {
+        Get.snackbar('Error', 'Failed to load today status');
+      }
+    } catch (e) {
+      print("fetchTodayStatus error: $e");
+      Get.snackbar('Error', 'Failed to load today status');
+    } finally {
+      isTodayStatusLoading.value = false;
+      print("isTodayStatusLoading set to false: ${isTodayStatusLoading.value}");
+    }
   }
 }
 

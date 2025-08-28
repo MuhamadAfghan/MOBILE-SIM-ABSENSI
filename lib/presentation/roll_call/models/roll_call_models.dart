@@ -19,7 +19,7 @@ class RollCallRequest {
       };
 }
 
-// Response model for check-in/check-out
+
 class RollCallResponse {
   final String status;
   final String message;
@@ -33,6 +33,40 @@ class RollCallResponse {
 
   factory RollCallResponse.fromJson(Map<String, dynamic> json) {
     return RollCallResponse(
+      status: json['status'] ?? '',
+      message: json['message'] ?? '',
+      data: json['data'] ?? {},
+    );
+  }
+}
+
+class AbsenceRequest {
+  String dateStart;
+  String dateEnd;
+  String type; 
+  String description;
+
+  AbsenceRequest({
+    required this.dateStart,
+    required this.dateEnd,
+    required this.type,
+    required this.description,
+  });
+}
+
+class AbsenceResponse {
+  final String status;
+  final String message;
+  final Map<String, dynamic> data;
+
+  AbsenceResponse({
+    required this.status,
+    required this.message,
+    required this.data,
+  });
+
+  factory AbsenceResponse.fromJson(Map<String, dynamic> json) {
+    return AbsenceResponse(
       status: json['status'] ?? '',
       message: json['message'] ?? '',
       data: json['data'] ?? {},

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../theme/navbar_bottom_page.dart';
 import '../../theme/navbar_head_page.dart';
 import '../roll_call/roll_call_page.dart';
@@ -7,6 +9,8 @@ import '../history/history_page.dart';
 import '../profile/profile_page.dart';
 import '../../widget/app_fonts_custom.dart';
 import 'controller/home_controller.dart';
+import '../history/controller/history_controller.dart';
+import '../../widget/pop_up_custom.dart';
 
 class HomePage extends StatefulWidget {
   static const String routeName = '/HomePage';
@@ -19,6 +23,18 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   final HomeController _controller = Get.put(HomeController());
+  final HistoryController _historyController = Get.put(HistoryController());
+  final RxString _popupMessage = ''.obs; 
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _controller.fetchSettings();
+      _controller.fetchTodayStatus();
+      _historyController.fetchHistory(limit: 3);
+    });
+  }
 
   void _onNavTap(int index) {
     if (index == 0 && _selectedIndex != 0) {
@@ -52,292 +68,392 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _controller.fetchSettings();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: const Color(0xFFE3F3FF),
-        body: GetX<HomeController>(
-          init: _controller,
-          builder: (ctrl) {
-            final isLoading = ctrl.isLoading.value;
-            final settings = ctrl.settings.value;
-            return isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : Column(
-                    children: [
-                    NavbarHeadPage(),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            children: [
-                              // Jadwal Kedatangan & Kepulangan
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFEFF6FF),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      'Jadwal Kedatangan & Kepulangan',
-                                      style: AppFonts.semiBold(fontSize: 16),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Column(
-                                          children: [
-                                            Text('Masuk', style: AppFonts.regular(fontSize: 14, color: Colors.grey)),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              settings?.mondayStartTime ?? '-',
-                                              style: AppFonts.bold(fontSize: 28),
-                                            ),
-                                          ],
-                                        ),
-                                        // Garis vertikal tipis
-                                        Container(
-                                          width: 1,
-                                          height: 40,
-                                          color: const Color(0xFFBFD6F6),
-                                        ),
-                                        Column(
-                                          children: [
-                                            Text('Keluar', style: AppFonts.regular(fontSize: 14, color: Colors.grey)),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              settings?.mondayEndTime ?? '-',
-                                              style: AppFonts.bold(fontSize: 28),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              // Absen Masuk & Keluar
-                              Row(
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+      ),
+    );
+    return ScreenUtilInit(
+      designSize: const Size(375, 812),
+      minTextAdapt: true,
+      builder: (_, __) => Scaffold(
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  Expanded(
+                    child: GetX<HomeController>(
+                      init: _controller,
+                      builder: (ctrl) {
+                        final isLoading = ctrl.isLoading.value;
+                        final settings = ctrl.settings.value;
+                        print("settings = ${ctrl.settings.value}");
+                        print("history records = ${_historyController.records.length}");
+                        return isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : Column(
                                 children: [
+                                  NavbarHeadPage(),
                                   Expanded(
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(vertical: 20),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: const Color(0xFFE3E8F0), width: 1),
-                                      ),
+                                    child: SingleChildScrollView(
+                                      padding: EdgeInsets.all(16.w),
                                       child: Column(
                                         children: [
-                                          Text(
-                                            (settings?.mondayStartTime != null && settings!.mondayStartTime.isNotEmpty)
-                                                ? settings!.mondayStartTime
-                                                : '-',
-                                            style: AppFonts.bold(fontSize: 24, color: const Color(0xFF2563EB)),
+                                          
+                                          Container(
+                                            width: double.infinity,
+                                            padding: EdgeInsets.all(20.w),
+                                            decoration: BoxDecoration(
+                                              color: const Color.fromARGB(255, 255, 255, 255),
+                                              borderRadius: BorderRadius.circular(12.r),
+                                            ),
+                                            child: Column(
+                                              children: [
+                                                Text(
+                                                  'Jadwal Kedatangan & Kepulangan',
+                                                  style: AppFonts.semiBold(fontSize: 16.sp),
+                                                ),
+                                                SizedBox(height: 16.h),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                  children: [
+                                                    Column(
+                                                      children: [
+                                                        Text('Masuk', style: AppFonts.regular(fontSize: 14.sp, color: Colors.grey)),
+                                                        SizedBox(height: 4.h),
+                                                        Text(
+                                                          settings?.mondayStartTime ?? '-', 
+                                                          style: AppFonts.bold(fontSize: 20.sp),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    
+                                                    Container(
+                                                      width: 1.w,
+                                                      height: 40.h,
+                                                      color: const Color(0xFFBFD6F6),
+                                                    ),
+                                                    Column(
+                                                      children: [
+                                                        Text('Keluar', style: AppFonts.regular(fontSize: 14.sp, color: Colors.grey)),
+                                                        SizedBox(height: 4.h),
+                                                        Text(
+                                                          settings?.mondayEndTime ?? '-', 
+                                                          style: AppFonts.bold(fontSize: 20.sp),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                          const SizedBox(height: 8),
-                                          Text('Absen Masuk', style: AppFonts.bold(color: const Color(0xFF2563EB))),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(vertical: 20),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: const Color(0xFFE3E8F0), width: 1),
-                                      ),
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            (settings?.mondayEndTime != null && settings!.mondayEndTime.isNotEmpty)
-                                                ? settings!.mondayEndTime
-                                                : '-',
-                                            style: AppFonts.bold(fontSize: 24, color: const Color(0xFF2563EB)),
+                                          SizedBox(height: 16.h),
+                                          
+                                          Obx(() {
+                                            if (ctrl.isTodayStatusLoading.value) {
+                                              return const Center(child: CircularProgressIndicator());
+                                            }
+                                            final today = ctrl.todayStatus.value;
+                                            String checkIn = (today?.statusData?.checkInTime != null && today!.statusData!.checkInTime!.length >= 5)
+                                                ? today.statusData!.checkInTime!.substring(0, 5)
+                                                : '--:--';
+                                            String checkOut = (today?.statusData?.checkOutTime != null && today!.statusData!.checkOutTime!.length >= 5)
+                                                ? today.statusData!.checkOutTime!.substring(0, 5)
+                                                : '--:--';
+                                            return Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Container(
+                                                    height: 160.h,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      borderRadius: BorderRadius.circular(12.r),
+                                                      border: Border.all(color: const Color(0xFFE3E8F0), width: 1.w),
+                                                    ),
+                                                    child: Padding(
+                                                      padding: EdgeInsets.all(16.w),
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Row(
+                                                            children: [
+                                                              CircleAvatar(
+                                                                backgroundColor: Color(0xFF4F6CD2),
+                                                                radius: 24.r,
+                                                                child: Icon(Icons.arrow_back, color: Colors.white, size: 28.sp),
+                                                              ),
+                                                              SizedBox(width: 8.w),
+                                                              Column(
+                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                children: [
+                                                                  Text('Masuk', style: AppFonts.bold(fontSize: 12.sp)),
+                                                                  Text('Pagi', style: AppFonts.regular(fontSize: 10.sp, color: Colors.grey)),
+                                                                ],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          const Spacer(),
+                                                          Text(
+                                                            checkIn,
+                                                            style: AppFonts.bold(fontSize: 27.sp, color: Colors.black87),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(width: 16.w),
+                                                Expanded(
+                                                  child: Container(
+                                                    height: 160.h,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      borderRadius: BorderRadius.circular(12.r),
+                                                      border: Border.all(color: const Color(0xFFE3E8F0), width: 1.w),
+                                                    ),
+                                                    child: Padding(
+                                                      padding: EdgeInsets.all(16.w),
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Row(
+                                                            children: [
+                                                              CircleAvatar(
+                                                                backgroundColor: Color(0xFF4F6CD2),
+                                                                radius: 24.r,
+                                                                child: Icon(Icons.arrow_forward, color: Colors.white, size: 28.sp),
+                                                              ),
+                                                              SizedBox(width: 8.w),
+                                                              Column(
+                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                children: [
+                                                                  Text('Keluar', style: AppFonts.bold(fontSize: 12.sp)),
+                                                                  Text('Sore', style: AppFonts.regular(fontSize: 10.sp, color: Colors.grey)),
+                                                                ],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          const Spacer(),
+                                                          Text(
+                                                            checkOut,
+                                                            style: AppFonts.bold(fontSize: 27.sp, color: Colors.black87),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          }),
+                                          SizedBox(height: 16.h),
+                                          
+                                          Container(
+                                            width: double.infinity,
+                                            padding: EdgeInsets.all(16.w),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(12.r),
+                                              border: Border.all(color: const Color(0xFFE3E8F0), width: 1.w),
+                                            ),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text('Lokasi Kantor', style: AppFonts.semiBold(fontSize: 16.sp)),
+                                                SizedBox(height: 8.h),
+                                                Text(
+                                                  settings?.locationName ??
+                                                      'Raya Wangun, RT.01/RW.06, Sindangsari, Kec. Bogor Tim.,\nKota Bogor, Jawa Barat 16146',
+                                                  style: AppFonts.regular(fontSize: 14.sp, color: Colors.grey),
+                                                ),
+                                                SizedBox(height: 12.h),
+                                                Row(
+                                                  children: [
+                                                    Container(
+                                                      width: 10.w,
+                                                      height: 10.h,
+                                                      decoration: const BoxDecoration(
+                                                        color: Colors.green,
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 8.w),
+                                                    Text(
+                                                      'Dalam Radius Kantor',
+                                                      style: AppFonts.bold(color: Colors.black87),
+                                                    ),
+                                                    const Spacer(),
+                                                  ],
+                                                ),
+                                                if (settings != null)
+                                                  Padding(
+                                                    padding: EdgeInsets.only(top: 8.h),
+                                                    child: Text(
+                                                      'Lat: ${settings!.latitude}, Long: ${settings!.longitude}, Radius: ${settings!.radius}m',
+                                                      style: AppFonts.regular(fontSize: 12.sp, color: Colors.grey),
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
                                           ),
-                                          const SizedBox(height: 8),
-                                          Text('Absen Keluar', style: AppFonts.bold(color: const Color(0xFF2563EB))),
+                                          SizedBox(height: 16.h),
+                                          
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('Riwayat Kehadiran', style: AppFonts.semiBold(fontSize: 16.sp)),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pushAndRemoveUntil(
+                                                    context,
+                                                    MaterialPageRoute(builder: (_) => const HistoryPage()),
+                                                    (route) => false,
+                                                  );
+                                                },
+                                                child: Text('Lihat Selengkapnya', style: AppFonts.bold(fontSize: 12.sp, color: Color(0xFF2563EB))),
+                                                style: TextButton.styleFrom(
+                                                  padding: EdgeInsets.zero,
+                                                  minimumSize: Size(0, 0),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(height: 8.h),
+                                          
+                                          Obx(() {
+                                            if (_historyController.isLoading.value) {
+                                              return const Center(child: CircularProgressIndicator());
+                                            }
+                                            if (_historyController.error.isNotEmpty) {
+                                              return Text(_historyController.error.value, style: AppFonts.fonterror);
+                                            }
+                                            if (_historyController.records.isEmpty) {
+                                              return const Text('Tidak ada data riwayat.', style: TextStyle(color: Colors.grey, fontFamily: AppFonts.poppins));
+                                            }
+                                            return Column(
+                                              children: _historyController.records
+                                                  .take(3)
+                                                  .map((absen) => _buildAttendanceHistoryItem(
+                                                        absen.date.split('-').length > 2 ? absen.date.split('-')[2] : '-',
+                                                        absen.dayName.length >= 3 ? absen.dayName.substring(0, 3) : absen.dayName,
+                                                        (absen.checkInTime != null && absen.checkInTime!.length >= 5) ? absen.checkInTime!.substring(0, 5) : '--:--',
+                                                        (absen.checkOutTime != null && absen.checkOutTime!.length >= 5) ? absen.checkOutTime!.substring(0, 5) : '--:--',
+                                                        absen.location ?? '',
+                                                      ))
+                                                  .toList(),
+                                            );
+                                          }),
                                         ],
                                       ),
                                     ),
                                   ),
                                 ],
-                              ),
-                              const SizedBox(height: 16),
-                              // Lokasi Kantor
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: const Color(0xFFE3E8F0), width: 1),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Lokasi Kantor', style: AppFonts.semiBold(fontSize: 16)),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      settings?.locationName ??
-                                          'Raya Wangun, RT.01/RW.06, Sindangsari, Kec. Bogor Tim.,\nKota Bogor, Jawa Barat 16146',
-                                      style: AppFonts.regular(fontSize: 14, color: Colors.grey),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 10,
-                                          height: 10,
-                                          decoration: const BoxDecoration(
-                                            color: Colors.green,
-                                            shape: BoxShape.circle,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'Dalam Radius Kantor',
-                                          style: AppFonts.bold(color: Colors.black87),
-                                        ),
-                                        const Spacer(),
-                                        GestureDetector(
-                                          onTap: () {},
-                                          child: Text('Lihat map', style: AppFonts.bold(color: Color(0xFF2563EB))),
-                                        ),
-                                      ],
-                                    ),
-                                    if (settings != null)
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 8.0),
-                                        child: Text(
-                                          'Lat: ${settings!.latitude}, Long: ${settings!.longitude}, Radius: ${settings!.radius}m',
-                                          style: AppFonts.regular(fontSize: 12, color: Colors.grey),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              // Riwayat Kehadiran
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Riwt Kehadiran', style: AppFonts.semiBold(fontSize: 16)),
-                                  TextButton(
-                                    onPressed: () {},
-                                    child: Text('Lihat Selengkapnya', style: AppFonts.bold(fontSize: 12, color: Color(0xFF2563EB))),
-                                    style: TextButton.styleFrom(
-                                      padding: EdgeInsets.zero,
-                                      minimumSize: const Size(0, 0),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              // List Riwayat
-                              _buildAttendanceHistoryItem('05', 'Sen', '06.45', '16:10', 'SMK WIKRAMA, KOTA BOGOR'),
-                              const SizedBox(height: 12),
-                              _buildAttendanceHistoryItem('04', 'Min', '07.00', '16:00', 'SMK WIKRAMA, KOTA BOGOR'),
-                            ],
-                          ),
-                        ),
+                              );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              Obx(() => _popupMessage.value.isNotEmpty
+                  ? SafeArea(
+                      bottom: true,
+                      child: Positioned(
+                        left: 16.w,
+                        right: 16.w,
+                        bottom: 16.h,
+                        child: PopUpCustom(message: _popupMessage.value),
                       ),
-                    ],
-                  );
-          },
-        ),
-        bottomNavigationBar: SafeArea(
-          child: NavbarBottomPage(
-            currentIndex: _selectedIndex,
-            onTap: _onNavTap,
+                    )
+                  : const SizedBox.shrink(),
+              ),
+            ],
           ),
+        ),
+        bottomNavigationBar: NavbarBottomPage(
+          currentIndex: _selectedIndex,
+          onTap: _onNavTap,
         ),
       ),
     );
   }
 
+  void _showPopup(String message, {bool success = false}) {
+    _popupMessage.value = (success ? '[SUCCESS] ' : '[ERROR] ') + message;
+    Future.delayed(const Duration(seconds: 2), () {
+      _popupMessage.value = '';
+    });
+  }
+
   Widget _buildAttendanceHistoryItem(String date, String day, String masuk, String keluar, String location) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: EdgeInsets.only(bottom: 8.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
       ),
       child: Row(
         children: [
-          // Tanggal & Hari
+          
           Container(
-            width: 60,
-            height: 80,
+            width: 60.w,
+            height: 80.h,
             decoration: BoxDecoration(
               color: const Color(0xFF4F6CD2),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(date, style: AppFonts.bold(fontSize: 22, color: Colors.white)),
-                Text(day, style: AppFonts.semiBold(fontSize: 15, color: Colors.white)),
+                Text(date, style: AppFonts.bold(fontSize: 22.sp, color: Colors.white)),
+                Text(day, style: AppFonts.semiBold(fontSize: 15.sp, color: Colors.white)),
               ],
             ),
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      // Jam Masuk
+                      
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(masuk, style: AppFonts.bold(fontSize: 18, color: Colors.black)),
-                          const SizedBox(height: 2),
-                          Text('Jam Masuk', style: AppFonts.semiBold(fontSize: 12, color: Color(0xFFBDBDBD))),
+                          Text(masuk, style: AppFonts.bold(fontSize: 18.sp, color: Colors.black)),
+                          SizedBox(height: 2.h),
+                          Text('Jam Masuk', style: AppFonts.semiBold(fontSize: 12.sp, color: Color(0xFFBDBDBD))),
                         ],
                       ),
-                      // Garis vertikal tipis
                       Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
-                        width: 1,
-                        height: 32,
+                        margin: EdgeInsets.symmetric(horizontal: 16.w),
+                        width: 1.w,
+                        height: 32.h,
                         color: const Color(0xFFE3E8F0),
                       ),
-                      // Jam Keluar
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(keluar, style: AppFonts.bold(fontSize: 18, color: Color(0xFFBDBDBD))),
-                          const SizedBox(height: 2),
-                          Text('Jam Keluar', style: AppFonts.semiBold(fontSize: 12, color: Color(0xFFBDBDBD))),
+                          Text(keluar, style: AppFonts.bold(fontSize: 18.sp, color: Color(0xFFBDBDBD))),
+                          SizedBox(height: 2.h),
+                          Text('Jam Keluar', style: AppFonts.semiBold(fontSize: 12.sp, color: Color(0xFFBDBDBD))),
                         ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10.h),
                   Row(
                     children: [
-                      const Icon(Icons.location_on, size: 16, color: Colors.black),
-                      const SizedBox(width: 4),
+                      Icon(Icons.location_on, size: 16.sp, color: Colors.black),
+                      SizedBox(width: 4.w),
                       Text(
                         location,
-                        style: AppFonts.bold(fontSize: 13, color: Colors.black),
+                        style: AppFonts.bold(fontSize: 13.sp, color: Colors.black),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],

@@ -22,6 +22,8 @@ class HomeSettings {
   final double latitude;
   final double longitude;
   final int radius;
+  final String createdAt;
+  final String updatedAt;
 
   HomeSettings({
     required this.id,
@@ -47,6 +49,8 @@ class HomeSettings {
     required this.latitude,
     required this.longitude,
     required this.radius,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
   factory HomeSettings.fromJson(Map<String, dynamic> json) {
@@ -74,6 +78,93 @@ class HomeSettings {
       latitude: (json['latitude'] ?? 0).toDouble(),
       longitude: (json['longitude'] ?? 0).toDouble(),
       radius: json['radius'] ?? 0,
+      createdAt: json['created_at'] ?? '',
+      updatedAt: json['updated_at'] ?? '',
+    );
+  }
+}
+
+class TodayStatus {
+  final String date;
+  final bool isWorkingDay;
+  final String? statusType;
+  final StatusData? statusData;
+  final WorkSchedule? workSchedule;
+
+  TodayStatus({
+    required this.date,
+    required this.isWorkingDay,
+    this.statusType,
+    this.statusData,
+    this.workSchedule,
+  });
+
+  factory TodayStatus.fromJson(Map<String, dynamic> json) {
+    return TodayStatus(
+      date: json['date'] ?? '',
+      isWorkingDay: json['is_working_day'] ?? false,
+      statusType: json['status_type'],
+      statusData: json['status_data'] != null
+          ? StatusData.fromJson(json['status_data'])
+          : null,
+      workSchedule: json['work_schedule'] != null
+          ? WorkSchedule.fromJson(json['work_schedule'])
+          : null,
+    );
+  }
+}
+
+class StatusData {
+  final String? source;
+  final bool? hasCheckedIn;
+  final bool? hasCheckedOut;
+  final String? checkInTime;
+  final String? checkOutTime;
+  final String? type;
+  final String? keterangan;
+  final bool? isLate;
+
+  StatusData({
+    this.source,
+    this.hasCheckedIn,
+    this.hasCheckedOut,
+    this.checkInTime,
+    this.checkOutTime,
+    this.type,
+    this.keterangan,
+    this.isLate,
+  });
+
+  factory StatusData.fromJson(Map<String, dynamic> json) {
+    return StatusData(
+      source: json['source'],
+      hasCheckedIn: json['has_checked_in'],
+      hasCheckedOut: json['has_checked_out'],
+      checkInTime: json['check_in_time'],
+      checkOutTime: json['check_out_time'],
+      type: json['type'],
+      keterangan: json['keterangan'],
+      isLate: json['is_late'],
+    );
+  }
+}
+
+class WorkSchedule {
+  final String? startTime;
+  final String? endTime;
+  final String? locationName;
+
+  WorkSchedule({
+    this.startTime,
+    this.endTime,
+    this.locationName,
+  });
+
+  factory WorkSchedule.fromJson(Map<String, dynamic> json) {
+    return WorkSchedule(
+      startTime: json['start_time'],
+      endTime: json['end_time'],
+      locationName: json['location_name'],
     );
   }
 }
