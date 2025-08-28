@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert'; // tambahkan ini
+import 'dart:convert'; 
 import '../models/profile_models.dart';
 import '../../../core/api/app_api.dart';
 import '../../login/models/login_models.dart';
@@ -28,15 +28,14 @@ class ProfileController extends GetxController {
     if (token != null && token.isNotEmpty) {
       await fetchStatistik(token);
     } else {
-      // Handle jika token tidak ada, misalnya redirect ke login
-      // Get.offAllNamed('/login');
+      
+      
     }
   }
 
   Future<void> fetchStatistik(String token) async {
     isLoading.value = true;
     error.value = '';
-
     try {
       final dio = Dio();
       final response = await dio.get(
@@ -48,10 +47,8 @@ class ProfileController extends GetxController {
           },
         ),
       );
-
       print('Status code: ${response.statusCode}');
       print('Response data: ${response.data}');
-
       statistik.value = Statistik.fromJson(response.data['data']);
     } catch (e) {
       print('Error fetching statistik: $e');
@@ -74,7 +71,7 @@ class ProfileController extends GetxController {
     try {
       final dio = Dio();
       final response = await dio.get(
-        "${AppApi.baseUrl}/user/current-activity",
+        AppApi.activity,
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -82,10 +79,8 @@ class ProfileController extends GetxController {
           },
         ),
       );
-
       print('Activity status code: ${response.statusCode}');
       print('Activity response data: ${response.data}');
-
       activity.value = Activity.fromJson(response.data['data']);
     } catch (e) {
       print('Error fetching activity: $e');
@@ -98,6 +93,16 @@ class ProfileController extends GetxController {
     final userJson = prefs.getString('user');
     if (userJson != null) {
       user.value = UserModel.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
+    }
+  }
+
+  Future<void> reloadUserFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userJson = prefs.getString('user');
+    if (userJson != null) {
+      user.value = UserModel.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
+    } else {
+      user.value = null;
     }
   }
 }

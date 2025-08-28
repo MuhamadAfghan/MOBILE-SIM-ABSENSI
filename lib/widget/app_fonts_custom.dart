@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // aktifkan import ini
+import 'package:flutter_screenutil/flutter_screenutil.dart'; 
 
 class AppFonts {
   static const String poppins = 'Poppins';
@@ -7,7 +7,7 @@ class AppFonts {
   static TextStyle black({double fontSize = 16, Color? color}) => TextStyle(
         fontFamily: poppins,
         fontWeight: FontWeight.w900,
-        fontSize: fontSize.sp, // gunakan .sp
+        fontSize: fontSize.sp, 
         color: color,
       );
 
@@ -46,7 +46,7 @@ class AppFonts {
         color: color,
       );
 
-  // Preset TextStyles (biarkan tetap, atau bisa juga diubah ke responsive jika ingin)
+  
   static TextStyle heading24 = TextStyle(
     fontFamily: poppins,
     fontSize: 24.sp,

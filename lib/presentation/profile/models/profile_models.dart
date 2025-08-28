@@ -16,13 +16,19 @@ class Statistik {
   });
 
   factory Statistik.fromJson(Map<String, dynamic> json) {
+    int parseInt(dynamic value) {
+      if (value is int) return value;
+      if (value is String) return int.tryParse(value) ?? 0;
+      return 0;
+    }
+
     return Statistik(
-      persentaseKehadiran: json['persentase_kehadiran'],
-      jumlahTidakMasuk: json['jumlah_tidak_masuk'],
-      jumlahMasuk: json['jumlah_masuk'],
-      jumlahTelat: json['jumlah_telat'],
-      jumlahIzin: json['jumlah_izin'],
-      jumlahSakit: json['jumlah_sakit'],
+      persentaseKehadiran: parseInt(json['persentase_kehadiran']),
+      jumlahTidakMasuk: parseInt(json['jumlah_tidak_masuk']),
+      jumlahMasuk: parseInt(json['jumlah_masuk']),
+      jumlahTelat: parseInt(json['jumlah_telat']),
+      jumlahIzin: parseInt(json['jumlah_izin']),
+      jumlahSakit: parseInt(json['jumlah_sakit']),
     );
   }
 }
@@ -43,11 +49,17 @@ class Activity {
   });
 
   factory Activity.fromJson(Map<String, dynamic> json) {
+    int parseInt(dynamic value) {
+      if (value is int) return value;
+      if (value is String) return int.tryParse(value) ?? 0;
+      return 0;
+    }
+
     return Activity(
       checkInTime: json['check_in_time'],
       checkOutTime: json['check_out_time'],
       isLate: json['is_late'],
-      lateDurationMinutes: json['late_duration_minutes'],
+      lateDurationMinutes: parseInt(json['late_duration_minutes']),
       expectedCheckInTime: json['expected_check_in_time'],
     );
   }

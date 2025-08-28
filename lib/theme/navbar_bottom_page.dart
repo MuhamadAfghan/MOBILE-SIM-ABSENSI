@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:sim_absensi/widget/app_color_custom.dart';
 
-// Widget reusable untuk bottom navigation bar
+
 class NavbarBottomPage extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
@@ -18,7 +19,7 @@ class NavbarBottomPage extends StatelessWidget {
       index: currentIndex,
       height: 60,
       backgroundColor: Colors.transparent,
-      color: Colors.blue,
+      color: AppColor.primaryBlue,
       buttonBackgroundColor: Colors.blueAccent,
       animationDuration: const Duration(milliseconds: 800),
       items: const [
