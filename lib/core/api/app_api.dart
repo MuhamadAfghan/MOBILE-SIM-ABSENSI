@@ -1,5 +1,5 @@
 class AppApi {
-  static const String baseUrl = "https://29e6be0240b9.ngrok-free.app/api";
+  static const String baseUrl = "https://974a2ef685a2.ngrok-free.app/api";
   static const String login = "$baseUrl/login";
   static const String settings = "$baseUrl/settings";
   static const String statistik = "$baseUrl/user/statistik";

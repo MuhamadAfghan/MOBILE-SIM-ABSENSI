@@ -5,6 +5,9 @@ import 'dart:convert';
 import '../../../core/api/app_api.dart';
 import '../models/login_models.dart';
 import '../../home/home_page.dart';
+import '../../profile/controller/profile_controller.dart';
+import '../../history/controller/history_controller.dart';
+import '../../home/controller/home_controller.dart';
 
 class LoginController extends GetxController {
   var isLoading = false.obs;
@@ -27,6 +30,12 @@ class LoginController extends GetxController {
   }) async {
     isLoading.value = true;
     try {
+      // Hapus token lama sebelum login baru
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('token');
+      await prefs.remove('serial_number');
+      await prefs.remove('user');
+
       final response = await Dio().post(
         AppApi.login,
         data: {
@@ -41,10 +50,20 @@ class LoginController extends GetxController {
         await prefs.setString('token', loginResponse.token);
         await prefs.setString('serial_number', loginResponse.serialNumber);
         await prefs.setString('user', jsonEncode(loginResponse.user.toJson()));
+        // Hapus instance controller lama agar data user baru di-load
+        Get.delete<ProfileController>();
+        Get.delete<HistoryController>();
+        Get.delete<HomeController>();
+        // Pastikan data home user baru di-load
+        final homeController = Get.put(HomeController());
+        await homeController.reloadHomeData();
+        // Pastikan data history user baru di-load
+        final historyController = Get.put(HistoryController());
+        await historyController.reloadHistory();
         if (onMessage != null) {
           onMessage(loginResponse.message, true);
         }
-        Get.offAll(() => const HomePage());
+        Get.offAllNamed(HomePage.routeName, arguments: {'successMessage': loginResponse.message});
       } else {
         final msg = response.data['message'] ?? 'Unknown error';
         if (onMessage != null) {

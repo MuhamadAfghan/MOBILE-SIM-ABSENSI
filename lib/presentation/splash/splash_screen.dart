@@ -22,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _initializeVideo() async {
-    _videoController = VideoPlayerController.asset('assets/images/splashscreen.mp4')
+    _videoController = VideoPlayerController.asset('assets/images/splash_screen.mov')
       ..initialize().then((_) {
         setState(() => _videoReady = true);
         _videoController.play();

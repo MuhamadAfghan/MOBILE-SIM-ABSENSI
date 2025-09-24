@@ -1,7 +1,12 @@
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert'; 
+import 'package:sim_absensi/presentation/history/history_page.dart';
+import 'package:sim_absensi/presentation/home/home_page.dart';
+import 'package:sim_absensi/presentation/roll_call/roll_call_page.dart';
+import 'package:sim_absensi/presentation/profile/profile_page.dart';
+import 'package:sim_absensi/presentation/login/login_page.dart';
+import 'dart:convert';
 import '../models/profile_models.dart';
 import '../../../core/api/app_api.dart';
 import '../../login/models/login_models.dart';
@@ -12,6 +17,8 @@ class ProfileController extends GetxController {
   var user = Rxn<UserModel>();
   var isLoading = false.obs;
   var error = ''.obs;
+  var selectedIndex = 3.obs;
+  var popupMessage = ''.obs;
 
   @override
   void onInit() {
@@ -21,15 +28,37 @@ class ProfileController extends GetxController {
     _loadUserFromPrefs();
   }
 
+  void navigateTo(int index) {
+    selectedIndex.value = index;
+    if (index == 0) {
+      Get.offAll(() =>  HomePage());
+    } else if (index == 1) {
+      Get.offAll(() =>  RollCallPage());
+    } else if (index == 2) {
+      Get.offAll(() =>  HistoryPage());
+    } else if (index == 3) {
+      Get.offAll(() =>  ProfilePage());
+    }
+  }
+
+  void showPopup(String message, {bool success = false}) {
+    popupMessage.value = (success ? '[SUCCESS] ' : '[ERROR] ') + message;
+    Future.delayed(const Duration(seconds: 2), () {
+      popupMessage.value = '';
+    });
+  }
+
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    Get.offAll(() => const LoginPage());
+  }
+
   Future<void> _loadTokenAndFetchStatistik() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
-
     if (token != null && token.isNotEmpty) {
       await fetchStatistik(token);
-    } else {
-      
-      
     }
   }
 
@@ -47,11 +76,8 @@ class ProfileController extends GetxController {
           },
         ),
       );
-      print('Status code: ${response.statusCode}');
-      print('Response data: ${response.data}');
       statistik.value = Statistik.fromJson(response.data['data']);
     } catch (e) {
-      print('Error fetching statistik: $e');
       error.value = e.toString();
     } finally {
       isLoading.value = false;
@@ -61,7 +87,6 @@ class ProfileController extends GetxController {
   Future<void> _loadTokenAndFetchActivity() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
-
     if (token != null && token.isNotEmpty) {
       await fetchActivity(token);
     }
@@ -79,11 +104,8 @@ class ProfileController extends GetxController {
           },
         ),
       );
-      print('Activity status code: ${response.statusCode}');
-      print('Activity response data: ${response.data}');
       activity.value = Activity.fromJson(response.data['data']);
-    } catch (e) {
-      print('Error fetching activity: $e');
+    } catch (_) {
       activity.value = null;
     }
   }
@@ -104,5 +126,6 @@ class ProfileController extends GetxController {
     } else {
       user.value = null;
     }
+    onInit(); 
   }
 }

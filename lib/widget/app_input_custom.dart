@@ -7,6 +7,8 @@ class AppInputCustom extends StatelessWidget {
   final bool obscureText;
   final TextInputType keyboardType;
   final EdgeInsetsGeometry? margin;
+  final double? width;
+  final double? height;
 
   const AppInputCustom({
     Key? key,
@@ -15,11 +17,15 @@ class AppInputCustom extends StatelessWidget {
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
     this.margin,
+    this.width,
+    this.height,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: 350,   
+      height: 50,
       margin: margin ?? EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -39,7 +45,10 @@ class AppInputCustom extends StatelessWidget {
         decoration: InputDecoration(
           hintText: hintText,
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 18.h),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 12.w,
+            vertical: 12.h,
+          ),
         ),
       ),
     );

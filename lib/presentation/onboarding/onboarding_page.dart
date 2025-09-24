@@ -24,13 +24,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
       imageAsset: "assets/onboarding/onboarding1.png",
     ),
     OnboardingData(
-      title: "Mudah Digunakan",
-      description: "Antarmuka sederhana dan intuitif, cocok untuk semua kalangan.",
+      title: "Fokus pada Kehadiran",
+      description: "Capai target absensi harian dan bulanan tanpa kendala.",
       imageAsset: "assets/onboarding/onboarding2.png",
     ),
     OnboardingData(
-      title: "Aman & Terpercaya",
-      description: "Data absensi tersimpan aman dan dapat diakses kapan saja.",
+      title: "Data Selalu Tersimpan",
+      description: "Akses laporan kehadiran kapan pun dengan sekali klik.",
       imageAsset: "assets/onboarding/onboarding3.png",
     ),
   ];
@@ -95,19 +95,26 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                 children: [
                                   Image.asset(
                                     onboardingData[index].imageAsset,
-                                    height: 220.h,
+                                    height: 250.h,
                                   ),
-                                  SizedBox(height: 40.h),
-                                  Text(
-                                    onboardingData[index].title,
-                                    style: AppFonts.bold(fontSize: 22, color: Colors.white),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  SizedBox(height: 16.h),
-                                  Text(
-                                    onboardingData[index].description,
-                                    style: AppFonts.regular(fontSize: 15, color: Colors.white),
-                                    textAlign: TextAlign.center,
+                                  SizedBox(height: 50.h),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 55.w),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          onboardingData[index].title,
+                                          style: AppFonts.bold(fontSize: 22, color: Colors.white),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        SizedBox(height: 7.h),
+                                        Text(
+                                          onboardingData[index].description,
+                                          style: AppFonts.regular(fontSize: 15, color: Colors.white),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               );
@@ -149,6 +156,16 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ),
                     
                     Positioned(
+                      left: 16.w,
+                      top: 16.h,
+                      child: Image.asset(
+                        'assets/images/logo_wikrama.png',
+                        width: 40.w,
+                        height: 40.w,
+                      ),
+                    ),
+                    
+                    Positioned(
                       right: 24.w,
                       bottom: 16.h,
                       child: GestureDetector(
@@ -169,10 +186,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             shape: BoxShape.circle,
                             color: Color(0xFFFFA24B),
                           ),
-                          child: Icon(
-                            Icons.arrow_forward,
-                            color: Colors.white,
-                            size: 32.sp,
+                          child: Center(
+                            child: Image.asset(
+                              'assets/images/arrow_kanan.png',
+                              width: 32.w,
+                              height: 32.w,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),

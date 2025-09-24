@@ -5,12 +5,12 @@ import 'package:sim_absensi/widget/app_color_custom.dart';
 
 class NavbarBottomPage extends StatelessWidget {
   final int currentIndex;
-  final Function(int) onTap;
+  final Function(int)? onTap;
 
   const NavbarBottomPage({
     Key? key,
     required this.currentIndex,
-    required this.onTap,
+    this.onTap,
   }) : super(key: key);
 
   @override
@@ -20,15 +20,19 @@ class NavbarBottomPage extends StatelessWidget {
       height: 60,
       backgroundColor: Colors.transparent,
       color: AppColor.primaryBlue,
-      buttonBackgroundColor: Colors.blueAccent,
-      animationDuration: const Duration(milliseconds: 800),
+      buttonBackgroundColor: AppColor.primaryBlue,
+      animationDuration: const Duration(milliseconds: 300),
       items: const [
         Icon(Icons.home, size: 30, color: Colors.white),
         Icon(Icons.article, size: 30, color: Colors.white),
         Icon(Icons.access_time, size: 30, color: Colors.white),
         Icon(Icons.person, size: 30, color: Colors.white),
       ],
-      onTap: onTap,
+      onTap: (index) {
+        if (onTap != null) {
+          onTap!(index);
+        }
+      },
     );
   }
 }

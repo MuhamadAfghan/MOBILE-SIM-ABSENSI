@@ -56,21 +56,21 @@ class Activity {
     }
 
     return Activity(
-      checkInTime: json['check_in_time'],
-      checkOutTime: json['check_out_time'],
-      isLate: json['is_late'],
+      checkInTime: json['check_in_time']?.toString(), 
+      checkOutTime: json['check_out_time']?.toString(), 
+      isLate: json['is_late'] ?? false,
       lateDurationMinutes: parseInt(json['late_duration_minutes']),
-      expectedCheckInTime: json['expected_check_in_time'],
+      expectedCheckInTime: json['expected_check_in_time']?.toString() ?? '',
     );
   }
 
   String get formattedCheckIn =>
-      checkInTime != null ? checkInTime!.substring(0, 5) : '--:--';
+      (checkInTime != null && checkInTime!.isNotEmpty) ? checkInTime!.substring(0, 5) : '--:--';
 
   String get formattedCheckOut =>
-      checkOutTime != null ? checkOutTime!.substring(0, 5) : '--:--';
+      (checkOutTime != null && checkOutTime!.isNotEmpty) ? checkOutTime!.substring(0, 5) : '--:--';
 
   String get formattedTerlambat => (isLate)
-      ? 'Hari ini, ${expectedCheckInTime.substring(0, 5)} (+${lateDurationMinutes}m)'
+      ? 'Hari ini, ${expectedCheckInTime.isNotEmpty ? expectedCheckInTime.substring(0, 5) : "--:--"} (+${lateDurationMinutes}m)'
       : 'Hari ini, -';
 }

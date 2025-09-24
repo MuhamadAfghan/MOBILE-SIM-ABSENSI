@@ -49,7 +49,10 @@ class _RollCallPageState extends State<RollCallPage> {
   @override
   void initState() {
     super.initState();
+    _selectedIndex = 1; // Tambahkan ini agar navbar berubah ke Absensi
     _initToken();
+    // Reload otomatis setiap kali halaman Absensi dibuka
+    // (jika perlu, tambahkan fungsi reload di controller dan panggil di sini)
   }
 
   Future<void> _initToken() async {
@@ -190,6 +193,12 @@ class _RollCallPageState extends State<RollCallPage> {
       _controller?.showPopup(context, 'Tanggal mulai dan akhir wajib diisi', backgroundColor: Color(0xFFFF6243));
       return;
     }
+    // Tambahkan validasi catatan wajib diisi
+    if ((_selectedAbsensiType == "Izin" || _selectedAbsensiType == "Sakit") &&
+        _noteController.text.trim().isEmpty) {
+      _controller?.showPopup(context, 'Catatan wajib diisi untuk Izin dan Sakit', backgroundColor: Color(0xFFFF6243));
+      return;
+    }
 
     setState(() {
       _loadingSubmit = true;
@@ -236,30 +245,22 @@ class _RollCallPageState extends State<RollCallPage> {
   }
 
   void _onNavTap(int index) {
-    if (index == 0) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const HomePage()),
-        (route) => false,
-      );
-    } else if (index == 1) {
-      
-    } else if (index == 2) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const HistoryPage()),
-        (route) => false,
-      );
-    } else if (index == 3) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const ProfilePage()),
-        (route) => false,
-      );
-    }
     setState(() {
       _selectedIndex = index;
     });
+    if (index == 0) {
+      _selectedIndex = 0;
+      Get.offAll(() => HomePage());
+    } else if (index == 1) {
+      _selectedIndex = 1;
+      // Tetap di halaman ini
+    } else if (index == 2) {
+      _selectedIndex = 2;
+      Get.offAll(() => HistoryPage());
+    } else if (index == 3) {
+      _selectedIndex = 3;
+      Get.offAll(() => ProfilePage());
+    }
   }
 
   Future<void> _pickImage() async {
@@ -369,351 +370,371 @@ class _RollCallPageState extends State<RollCallPage> {
 
   @override
   Widget build(BuildContext context) {
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-    ),
-  );
-    
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+      ),
+    );
     final deviceTime = DateTime.now();
     final timeStr = DateFormat('HH:mm', 'id_ID').format(deviceTime);
     final dateStr = DateFormat('d MMMM yyyy', 'id_ID').format(deviceTime);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE3F3FF),
+      backgroundColor: const Color(0xFFE3F3FF), // Background solid seperti ProfilePage
       body: SafeArea(
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                NavbarHeadPage(),
-                Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
-                    ),
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: EdgeInsets.all(18.w),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Form Absensi",
-                                  style: AppFonts.bold(fontSize: 16.sp),
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      timeStr,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16.sp,
-                                      ),
-                                    ),
-                                    Text(
-                                      dateStr,
-                                      style: AppFonts.regular(fontSize: 10.sp, color: Colors.grey),
-                                    ),
-                                  ],
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  NavbarHeadPage(),
+                  SizedBox(height: 4.h),
+                ],
+              ),
+              Positioned(
+                top: 110.h,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(bottom: 16.h),
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: 400.w,
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(10.r)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.08),
+                                  blurRadius: 10,
+                                  offset: Offset(0, 2),
                                 ),
                               ],
                             ),
-                            SizedBox(height: 8.h),
-
-                            
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        _selectedMainType = "Kedatangan";
-                                      });
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(vertical: 24.h),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: _selectedMainType == "Kedatangan"
-                                              ? Color(0xFF3B5EFF)
-                                              : Color(0xFFB6DFFF),
-                                          width: 2.w,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12.r),
-                                        color: Colors.white,
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Icon(Icons.login, size: 36.sp, color: Colors.black),
-                                          SizedBox(height: 8.h),
-                                          Text(
-                                            "Kedatangan",
-                                            style: AppFonts.bold(fontSize: 16.sp, color: Colors.black),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: 16.w),
-                                Expanded(
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      _submitKepulanganLangsung();
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(vertical: 24.h),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: _selectedMainType == "Kepulangan"
-                                              ? Color(0xFF3B5EFF)
-                                              : Color(0xFFB6DFFF),
-                                          width: 2.w,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12.r),
-                                        color: Colors.white,
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Icon(Icons.logout, size: 36.sp, color: Colors.black),
-                                          SizedBox(height: 8.h),
-                                          Text(
-                                            "Kepulangan",
-                                            style: AppFonts.bold(fontSize: 16.sp, color: Colors.black),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 18.h),
-
-                            
-                            if (_selectedMainType != null) ...[
-                              Text(
-                                "Jenis Absensi",
-                                style: AppFonts.bold(fontSize: 12.sp),
-                              ),
-                              SizedBox(height: 10.h),
-                              GridView.count(
-                                crossAxisCount: 2,
-                                shrinkWrap: true,
-                                crossAxisSpacing: 12.w,
-                                mainAxisSpacing: 12.h,
-                                physics: NeverScrollableScrollPhysics(),
-                                childAspectRatio: 2.2,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 12.w),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _AbsensiButton(
-                                    icon: Icons.login,
-                                    label: "Hadir",
-                                    selected: _selectedAbsensiType == "Hadir",
-                                    onTap: () {
-                                      setState(() {
-                                        _selectedAbsensiType = "Hadir";
-                                      });
-                                    },
-                                  ),
-                                  _AbsensiButton(
-                                    icon: Icons.access_time,
-                                    label: "Telat",
-                                    selected: _selectedAbsensiType == "Telat",
-                                    onTap: () {
-                                      setState(() {
-                                        _selectedAbsensiType = "Telat";
-                                      });
-                                    },
-                                  ),
-                                  _AbsensiButton(
-                                    icon: Icons.assignment_ind_outlined,
-                                    label: "Izin",
-                                    selected: _selectedAbsensiType == "Izin",
-                                    onTap: () {
-                                      setState(() {
-                                        _selectedAbsensiType = "Izin";
-                                      });
-                                    },
-                                  ),
-                                  _AbsensiButton(
-                                    icon: Icons.thermostat_outlined,
-                                    label: "Sakit",
-                                    selected: _selectedAbsensiType == "Sakit",
-                                    onTap: () {
-                                      setState(() {
-                                        _selectedAbsensiType = "Sakit";
-                                      });
-                                    },
-                                  ),
-                                  _AbsensiButton(
-                                    icon: Icons.help_outline,
-                                    label: "Tanpa Keterangan",
-                                    selected: _selectedAbsensiType == "Tanpa Keterangan",
-                                    onTap: () {
-                                      setState(() {
-                                        _selectedAbsensiType = "Tanpa Keterangan";
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 18.h),
-
-                              
-                              if (_selectedAbsensiType == "Izin" ||
-                                  _selectedAbsensiType == "Sakit" ||
-                                  _selectedAbsensiType == "Tanpa Keterangan") ...[
-                                Text(
-                                  "Tanggal Mulai",
-                                  style: AppFonts.bold(fontSize: 12.sp),
-                                ),
-                                SizedBox(height: 8.h),
-                                GestureDetector(
-                                  onTap: () => _pickDate(_dateStartController, initialDate: _selectedStartDate),
-                                  child: AbsorbPointer(
-                                    child: TextField(
-                                      controller: _dateStartController,
-                                      decoration: InputDecoration(
-                                        hintText: "YYYY-MM-DD",
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(8.r),
-                                        ),
-                                        contentPadding: EdgeInsets.all(12.w),
-                                        suffixIcon: Icon(Icons.calendar_today, size: 18.sp),
+                                  // Header
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Form Absensi",
+                                        style: AppFonts.bold(fontSize: 15.sp),
                                       ),
-                                      style: AppFonts.regular(fontSize: 14.sp),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 12.h),
-                                Text(
-                                  "Tanggal Akhir",
-                                  style: AppFonts.bold(fontSize: 12.sp),
-                                ),
-                                SizedBox(height: 8.h),
-                                GestureDetector(
-                                  onTap: () => _pickDate(_dateEndController, initialDate: _selectedEndDate),
-                                  child: AbsorbPointer(
-                                    child: TextField(
-                                      controller: _dateEndController,
-                                      decoration: InputDecoration(
-                                        hintText: "YYYY-MM-DD",
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(8.r),
-                                        ),
-                                        contentPadding: EdgeInsets.all(12.w),
-                                        suffixIcon: Icon(Icons.calendar_today, size: 18.sp),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            timeStr,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14.sp,
+                                            ),
+                                          ),
+                                          Text(
+                                            dateStr,
+                                            style: AppFonts.regular(fontSize: 10.sp, color: Colors.grey),
+                                          ),
+                                        ],
                                       ),
-                                      style: AppFonts.regular(fontSize: 14.sp),
-                                    ),
+                                    ],
                                   ),
-                                ),
-                                SizedBox(height: 18.h),
-                              ],
+                                  SizedBox(height: 10.h),
 
-                              
-                              Text(
-                                "Catatan (Opsional)",
-                                style: AppFonts.bold(fontSize: 12.sp),
-                              ),
-                              SizedBox(height: 8.h),
-                              Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Color(0xFFB6DFFF)),
-                                  borderRadius: BorderRadius.circular(12.r),
-                                ),
-                                child: TextField(
-                                  controller: _noteController,
-                                  maxLines: 4,
-                                  decoration: InputDecoration(
-                                    hintText: "Tambahkan catatan...",
-                                    border: InputBorder.none,
-                                    contentPadding: EdgeInsets.all(12.w),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: 18.h),
-
-                              
-                              if (_selectedAbsensiType != "Hadir") ...[
-                                Text(
-                                  "Bukti Absensi",
-                                  style: AppFonts.bold(fontSize: 12.sp),
-                                ),
-                                SizedBox(height: 8.h),
-                                GestureDetector(
-                                  onTap: _pickImage,
-                                  child: Container(
-                                    width: double.infinity,
-                                    height: 120.h,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Color(0xFFB6DFFF)),
-                                      borderRadius: BorderRadius.circular(12.r),
-                                      color: Color(0xFFF8FBFF),
-                                    ),
-                                    child: _pickedImage == null
-                                        ? Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Icon(Icons.camera_alt, size: 36.sp, color: Colors.black38),
-                                              SizedBox(height: 8.h),
-                                              Text(
-                                                "Unggah Bukti",
-                                                style: TextStyle(fontSize: 14.sp, color: Colors.black38),
+                                  // Pilihan Kedatangan/Kepulangan
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              _selectedMainType = "Kedatangan";
+                                            });
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(vertical: 18.h),
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                color: _selectedMainType == "Kedatangan"
+                                                    ? Color(0xFF3B5EFF)
+                                                    : Color(0xFFB6DFFF),
+                                                width: 1.5.w,
                                               ),
-                                            ],
-                                          )
-                                        : ClipRRect(
-                                            borderRadius: BorderRadius.circular(12.r),
-                                            child: _pickedImage != null
-                                                ? Image.file(
+                                              borderRadius: BorderRadius.circular(10.r),
+                                              color: _selectedMainType == "Kedatangan"
+                                                  ? Color(0xFFE3F3FF)
+                                                  : Colors.white,
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.login, size: 28.sp, color: Colors.black),
+                                                SizedBox(height: 6.h),
+                                                Text(
+                                                  "Kedatangan",
+                                                  style: AppFonts.bold(fontSize: 13.sp, color: Colors.black),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: 10.w),
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            _submitKepulanganLangsung();
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(vertical: 18.h),
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                color: _selectedMainType == "Kepulangan"
+                                                    ? Color(0xFF3B5EFF)
+                                                    : Color(0xFFB6DFFF),
+                                                width: 1.5.w,
+                                              ),
+                                              borderRadius: BorderRadius.circular(10.r),
+                                              color: _selectedMainType == "Kepulangan"
+                                                  ? Color(0xFFE3F3FF)
+                                                  : Colors.white,
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.logout, size: 28.sp, color: Colors.black),
+                                                SizedBox(height: 6.h),
+                                                Text(
+                                                  "Kepulangan",
+                                                  style: AppFonts.bold(fontSize: 13.sp, color: Colors.black),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 14.h),
+
+                                  // Jenis Absensi
+                                  if (_selectedMainType != null) ...[
+                                    Text(
+                                      "Jenis Absensi",
+                                      style: AppFonts.bold(fontSize: 12.sp),
+                                    ),
+                                    SizedBox(height: 8.h),
+                                    GridView.count(
+                                      crossAxisCount: 2,
+                                      shrinkWrap: true,
+                                      crossAxisSpacing: 8.w,
+                                      mainAxisSpacing: 8.h,
+                                      physics: NeverScrollableScrollPhysics(),
+                                      childAspectRatio: 2.7, // lebih lebar
+                                      children: [
+                                        _AbsensiButton(
+                                          icon: Icons.login,
+                                          label: "Hadir",
+                                          selected: _selectedAbsensiType == "Hadir",
+                                          onTap: () {
+                                            setState(() {
+                                              _selectedAbsensiType = "Hadir";
+                                            });
+                                          },
+                                        ),
+                                        _AbsensiButton(
+                                          icon: Icons.assignment_ind_outlined,
+                                          label: "Izin",
+                                          selected: _selectedAbsensiType == "Izin",
+                                          onTap: () {
+                                            setState(() {
+                                              _selectedAbsensiType = "Izin";
+                                            });
+                                          },
+                                        ),
+                                        _AbsensiButton(
+                                          icon: Icons.thermostat_outlined,
+                                          label: "Sakit",
+                                          selected: _selectedAbsensiType == "Sakit",
+                                          onTap: () {
+                                            setState(() {
+                                              _selectedAbsensiType = "Sakit";
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 14.h),
+
+                                    // Tanggal Mulai/Akhir
+                                    if (_selectedAbsensiType == "Izin" ||
+                                        _selectedAbsensiType == "Sakit") ...[
+                                      Text(
+                                        "Tanggal Mulai",
+                                        style: AppFonts.bold(fontSize: 12.sp),
+                                      ),
+                                      SizedBox(height: 6.h),
+                                      GestureDetector(
+                                        onTap: () => _pickDate(_dateStartController, initialDate: _selectedStartDate),
+                                        child: AbsorbPointer(
+                                          child: TextField(
+                                            controller: _dateStartController,
+                                            decoration: InputDecoration(
+                                              hintText: "YYYY-MM-DD",
+                                              border: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(8.r),
+                                              ),
+                                              contentPadding: EdgeInsets.all(10.w),
+                                              suffixIcon: Icon(Icons.calendar_today, size: 16.sp),
+                                            ),
+                                            style: AppFonts.regular(fontSize: 12.sp),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 8.h),
+                                      Text(
+                                        "Tanggal Akhir",
+                                        style: AppFonts.bold(fontSize: 12.sp),
+                                      ),
+                                      SizedBox(height: 6.h),
+                                      GestureDetector(
+                                        onTap: () => _pickDate(_dateEndController, initialDate: _selectedEndDate),
+                                        child: AbsorbPointer(
+                                          child: TextField(
+                                            controller: _dateEndController,
+                                            decoration: InputDecoration(
+                                              hintText: "YYYY-MM-DD",
+                                              border: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(8.r),
+                                              ),
+                                              contentPadding: EdgeInsets.all(10.w),
+                                              suffixIcon: Icon(Icons.calendar_today, size: 16.sp),
+                                            ),
+                                            style: AppFonts.regular(fontSize: 12.sp),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 12.h),
+                                    ],
+
+                                    // Catatan
+                                    if (_selectedAbsensiType == "Izin" || _selectedAbsensiType == "Sakit") ...[
+                                      Text(
+                                        "Catatan (Wajib diisi)",
+                                        style: AppFonts.bold(fontSize: 12.sp),
+                                      ),
+                                    ] else ...[
+                                      Text(
+                                        "Catatan (Opsional)",
+                                        style: AppFonts.bold(fontSize: 12.sp),
+                                      ),
+                                    ],
+                                    SizedBox(height: 6.h),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Color(0xFFB6DFFF)),
+                                        borderRadius: BorderRadius.circular(10.r),
+                                      ),
+                                      child: TextField(
+                                        controller: _noteController,
+                                        maxLines: 3,
+                                        textInputAction: TextInputAction.done, 
+                                        decoration: InputDecoration(
+                                          hintText: "Tambahkan catatan...",
+                                          border: InputBorder.none,
+                                          contentPadding: EdgeInsets.all(10.w),
+                                        ),
+                                        style: AppFonts.regular(fontSize: 12.sp),
+                                      ),
+                                    ),
+                                    SizedBox(height: 12.h),
+
+                                    // Bukti Absensi
+                                    if (_selectedAbsensiType != "Hadir") ...[
+                                      Text(
+                                        "Bukti Absensi",
+                                        style: AppFonts.bold(fontSize: 12.sp),
+                                      ),
+                                      SizedBox(height: 6.h),
+                                      GestureDetector(
+                                        onTap: _pickImage,
+                                        child: Container(
+                                          width: double.infinity,
+                                          height: 90.h,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(color: Color(0xFFB6DFFF)),
+                                            borderRadius: BorderRadius.circular(10.r),
+                                            color: Color(0xFFF8FBFF),
+                                          ),
+                                          child: _pickedImage == null
+                                              ? Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(Icons.camera_alt, size: 24.sp, color: Colors.black38),
+                                                    SizedBox(height: 6.h),
+                                                    Text(
+                                                      "Unggah Bukti",
+                                                      style: TextStyle(fontSize: 12.sp, color: Colors.black38),
+                                                    ),
+                                                  ],
+                                                )
+                                              : ClipRRect(
+                                                  borderRadius: BorderRadius.circular(10.r),
+                                                  child: Image.file(
                                                     _pickedImage!,
                                                     width: double.infinity,
-                                                    height: 120.h,
+                                                    height: 90.h,
                                                     fit: BoxFit.cover,
-                                                  )
-                                                : Container(),
-                                          ),
-                                  ),
-                                ),
-                                SizedBox(height: 24.h),
-                              ],
+                                                  ),
+                                                ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 14.h),
+                                    ],
 
-                              
-                              AppButtonCustom(
-                                label: _loadingSubmit ? "Mengirim..." : "Kirim Absensi",
-                                loading: _loadingSubmit,
-                                onPressed: (_selectedAbsensiType != null && !_loadingSubmit)
-                                    ? (
-                                        (_selectedAbsensiType == "Izin" ||
-                                         _selectedAbsensiType == "Sakit" ||
-                                         _selectedAbsensiType == "Tanpa Keterangan")
-                                          ? _submitAbsence
-                                          : _submitAbsensi
-                                      )
-                                    : null,
+                                    // Tombol Kirim
+                                    Center(
+                                      child: AppButtonCustom(
+                                        label: _loadingSubmit ? "Mengirim..." : "Kirim Absensi",
+                                        loading: _loadingSubmit,
+                                        onPressed: (_selectedAbsensiType != null && !_loadingSubmit)
+                                            ? (
+                                                (_selectedAbsensiType == "Izin" ||
+                                                 _selectedAbsensiType == "Sakit")
+                                                  ? _submitAbsence
+                                                  : _submitAbsensi
+                                            )
+                                            : null,
+                                      ),
+                                    ),
+                                  ],
+                                ],
                               ),
-                            ],
-                          ],
-                        ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: NavbarBottomPage(
@@ -728,12 +749,14 @@ class _RollCallPageState extends State<RollCallPage> {
 class _AbsensiButton extends StatelessWidget {
   final IconData icon;
   final String label;
+  final String? subtitle;
   final bool selected;
   final VoidCallback? onTap;
 
   const _AbsensiButton({
     required this.icon,
     required this.label,
+    this.subtitle,
     this.selected = false,
     this.onTap,
   });
@@ -742,22 +765,29 @@ class _AbsensiButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
-        side: BorderSide(color: selected ? Color(0xFF3B5EFF) : Color(0xFF6EC1FF), width: 2.w),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        side: BorderSide(color: selected ? Color(0xFF3B5EFF) : Color(0xFF6EC1FF), width: 1.5.w),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
         backgroundColor: selected ? Color(0xFFE3F3FF) : Colors.white,
-        padding: EdgeInsets.symmetric(vertical: 8.h),
+        padding: EdgeInsets.symmetric(vertical: 4.h),
       ),
       onPressed: onTap,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: Colors.black, size: 28.sp),
-          SizedBox(height: 4.h),
+          Icon(icon, color: Colors.black, size: 18.sp),
+          SizedBox(height: 2.h),
           Text(
             label,
-            style: AppFonts.bold(fontSize: 14.sp, color: Colors.black),
+            style: AppFonts.bold(fontSize: 11.sp, color: Colors.black),
           ),
-        ],
+          if (subtitle != null) ...[
+            SizedBox(height: 2.h),
+            Text(
+              subtitle!,
+              style: AppFonts.regular(fontSize: 9.sp, color: Colors.black54),
+            ),    
+          ],
+        ],   
       ),
     );
   }
