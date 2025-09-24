@@ -63,18 +63,19 @@ class _LoginPageState extends State<LoginPage> {
                               bottom: 8.h,
                             ),
                             child: SizedBox(
-                              width: 60.w,
-                              height: 60.w,
+                              width: 40.w,
+                              height: 40.w,
                               child: Image.asset(
                                 'assets/images/logo_wikrama.png',
                                 fit: BoxFit.contain,
                               ),
                             ),
                           ),
+                          SizedBox(height: 50.h),
                           Center(
                             child: SizedBox(
-                              width: 120.w,
-                              height: 120.w,
+                              width: 200.w,
+                              height: 200.w,
                               child: Image.asset(
                                 'assets/images/login.png',
                                 fit: BoxFit.contain,
@@ -103,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                                 
                                 AppInputCustom(
                                   controller: _emailController,
-                                  hintText: 'Username',
+                                  hintText: 'Email',
                                   keyboardType: TextInputType.text,
                                 ),
 
@@ -122,6 +123,7 @@ class _LoginPageState extends State<LoginPage> {
                                   loading: _loginController.isLoading.value,
                                   color: AppColor.primaryBlue,
                                   onPressed: () async {
+                                    await _clearToken(); // Tambahkan ini untuk memastikan token lama dihapus sebelum login
                                     await _loginController.login(
                                       _emailController.text.trim(),
                                       _passwordController.text.trim(),

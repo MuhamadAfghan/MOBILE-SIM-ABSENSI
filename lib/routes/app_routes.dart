@@ -19,19 +19,19 @@ class AppRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splash:
-        return MaterialPageRoute(builder: (_) => const SplashScreen());
+        return MaterialPageRoute(builder: (_) => SplashScreen());
       case onboarding:
-        return MaterialPageRoute(builder: (_) => const OnboardingPage());
+        return MaterialPageRoute(builder: (_) => OnboardingPage());
       case login:
-        return MaterialPageRoute(builder: (_) => const LoginPage());
+        return MaterialPageRoute(builder: (_) => LoginPage());
       case home:
-        return MaterialPageRoute(builder: (_) => const HomePage());
+        return MaterialPageRoute(builder: (_) => HomePage());
       case history:
-        return MaterialPageRoute(builder: (_) => const HistoryPage());
+        return MaterialPageRoute(builder: (_) => HistoryPage());
       case rollCall:
-        return MaterialPageRoute(builder: (_) => const RollCallPage());
+        return MaterialPageRoute(builder: (_) => RollCallPage());
       case profile:
-        return MaterialPageRoute(builder: (_) => const ProfilePage());
+        return MaterialPageRoute(builder: (_) => ProfilePage());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

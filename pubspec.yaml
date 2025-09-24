@@ -1,7 +1,7 @@
 name: sim_absensi
 description: "A new Flutter project."
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.2.1+1
 
 environment:
   sdk: ^3.8.1
@@ -21,12 +21,18 @@ dependencies:
   easy_localization: ^3.0.3
   flutter_image_compress: ^2.1.0
   video_player: ^2.10.0
+  firebase_core: ^4.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.10.0
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/login.png"
 
 flutter:
   uses-material-design: true

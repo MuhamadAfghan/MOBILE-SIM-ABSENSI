@@ -28,15 +28,17 @@ class NavbarHeadPage extends StatelessWidget {
             ? Get.find<ProfileController>()
             : Get.put(ProfileController());
 
-    return ClipRRect(
-      borderRadius: BorderRadius.only(
-        bottomLeft: Radius.circular(48.r),
-        bottomRight: Radius.circular(48.r),
-      ),
-      child: Container(
-        color: const Color(0xFF5069D6),
-        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
+    return Container(
+      height: 170,
+      decoration: BoxDecoration(color: const Color(0xFF5069D6),borderRadius: BorderRadius.only(
+        bottomLeft: Radius.circular(50.r),
+        bottomRight: Radius.circular(50.r),
+      ),),
+     padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 40),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             
             Obx(() {
@@ -56,10 +58,11 @@ class NavbarHeadPage extends StatelessWidget {
               );
             }),
             SizedBox(width: 16.w),
-
+            
             
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Obx(() {
                   final user = profileController.user.value;
@@ -97,3 +100,4 @@ class NavbarHeadPage extends StatelessWidget {
     return '';
   }
 }
+
